@@ -240,7 +240,7 @@ export const sendOTP = async (req: Request, res: Response): Promise<void> => {
       // emailService.sendPasswordResetEmail(user.email, otp);
 
       console.log(otp); // For testing purposes, log the OTP to the console
-      res.status(200).json({ message: 'OTP sent successfully' });
+      res.status(200).json({ message: 'OTP sent successfully', otp : otp});
     } else {
       res.status(404).json({ error: 'User not found' });
     }
