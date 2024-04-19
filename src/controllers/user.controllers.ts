@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import User from '../models/UserModel';
 import { validationResult } from 'express-validator';
 import generateOTP from '../utils/generate-otp.helper';
+import { sendEmail } from '../services/sendEmailOtp'
 
 // Controller for user signup
 export const userSignup = async (req: Request, res: Response): Promise<void> => {
@@ -56,7 +57,6 @@ export const userSignup = async (req: Request, res: Response): Promise<void> => 
         email: newUser.email,
         country_code: newUser.country_code,
         mobile_no: newUser.mobile_no,
-        pin: newUser.pin,
       },
       token,
     });
@@ -124,8 +124,7 @@ export const userLogin = async (req: Request, res: Response): Promise<void> => {
         last_name: user.last_name,
         email: user.email,
         country_code: user.country_code,
-        mobile_no: user.mobile_no,
-        pin: user.pin,
+        mobile_no: user.mobile_no
       },
       token,
     });
@@ -135,6 +134,7 @@ export const userLogin = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// Controller to update first name and lastname
 export const updateUserName = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.params.id;
@@ -172,6 +172,7 @@ export const findAllUsers = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+// Controller for finding user by id
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
   try {
     // Extract user ID from request parameters
@@ -220,27 +221,28 @@ export const deleteUserById = async (req: Request, res: Response): Promise<void>
 };
 
 // Controller for sending otp
-export const sendOTP = async (req: Request, res: Response): Promise<void> => {
+export const initiatePasswordSet = async (req: Request, res: Response): Promise<void> => {
   const OTP_EXPIRY_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
   try {
     const { email } = req.body;
 
     const user = await User.findOne({ where: { email } });
 
-    if (user) {
-      const otp = generateOTP();
+    if (user && user.first_name) {
+      const mobile_otp = generateOTP();
+      const email_otp = generateOTP();
       const otp_expiry = new Date(Date.now() + OTP_EXPIRY_DURATION);
-      const hashedOTP = await bcrypt.hash(otp, 10);
-      user.otp = hashedOTP;
+      const mobileHashedOTP = await bcrypt.hash(mobile_otp, 10);
+      const emailHashedOTP = await bcrypt.hash(email_otp, 10);
+      user.mobile_otp = mobileHashedOTP;
+      user.email_otp = emailHashedOTP;
       user.otp_expiry = otp_expiry;
       await user.save();
 
-      // Here you should handle sending the OTP to the user via email
-      // For example:
-      // emailService.sendPasswordResetEmail(user.email, otp);
+      await sendEmail(user.first_name, email, email_otp)
+        .catch(error => console.error('Error:', error));
 
-      console.log(otp); // For testing purposes, log the OTP to the console
-      res.status(200).json({ message: 'OTP sent successfully', otp : otp});
+      res.status(200).json({ message: 'OTP sent successfully', mobile_otp: mobile_otp});// !!!!! Edit in production !!!!!!!
     } else {
       res.status(404).json({ error: 'User not found' });
     }
@@ -253,19 +255,22 @@ export const sendOTP = async (req: Request, res: Response): Promise<void> => {
 // Controller for handling password reset with OTP
 export const setPassword = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, otp, password } = req.body;
+    const { email, mobile_otp, email_otp, password } = req.body;
 
     const user = await User.findOne({ where: { email } });
 
-    if (user && user.id && user.otp && user.otp_expiry && user.otp_expiry > new Date()) {
-      const isOTPValid = await bcrypt.compare(otp, user.otp);
+    if (user && user.id && user.mobile_otp && user.email_otp && user.otp_expiry && user.otp_expiry > new Date()) {
+      const isMobileOTPValid = await bcrypt.compare(mobile_otp, user.mobile_otp);
+      const isEmailOTPValid = await bcrypt.compare(email_otp, user.email_otp);
 
-      if (isOTPValid) {
+      if (isMobileOTPValid && isEmailOTPValid) {
         const hashedPassword = await bcrypt.hash(password, 10);
         user.password = hashedPassword;
-        user.otp = null;
+        user.mobile_otp = null;
+        user.email_otp = null;
         user.otp_expiry = null;
         user.is_email_verified = true;
+        user.is_mobile_verified = true;
         await user.save();
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1h' });
         res.status(200).json({ message: 'Password reset successful', token });

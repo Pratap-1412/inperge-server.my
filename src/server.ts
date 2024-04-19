@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import sequelize from './config//database';
 import { authRouter, userRouter } from './routes/user.routes';
 import { handleBadJSONRequest } from './middlewares/bad-request.middleware';
-import cors from 'cors'; // Import cors middleware
+import cors from 'cors'; 
 
 dotenv.config();
 

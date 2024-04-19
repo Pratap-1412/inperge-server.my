@@ -9,11 +9,11 @@ class User extends Model {
   public email!: string;
   public country_code!: number | null;
   public mobile_no!: number;
-  public pin!: number | null;
   public password!: string;
   public is_mobile_verified!: boolean;
   public is_email_verified!: boolean;
-  public otp!: string | null; 
+  public mobile_otp!: string | null; 
+  public email_otp!: string | null; 
   public otp_expiry!: Date | null; 
 }
 
@@ -48,10 +48,6 @@ User.init(
       allowNull: false,
       unique: true,
     },
-    pin: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
     password: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -66,8 +62,12 @@ User.init(
       allowNull: false,
       defaultValue:false
     },
-    otp: {
-      type: DataTypes.STRING, // Store OTP as string
+    mobile_otp: {
+      type: DataTypes.STRING, // Store Mobile OTP as string
+      allowNull: true,
+    },
+    email_otp: {
+      type: DataTypes.STRING, // Store Email OTP as string
       allowNull: true,
     },
     otp_expiry: {
