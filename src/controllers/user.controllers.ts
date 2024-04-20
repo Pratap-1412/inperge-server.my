@@ -296,30 +296,32 @@ export const checkUser = async (req: Request, res: Response): Promise<void> => {
     const { mobile_no } = req.body;
 
     // Check if the mobile number is already registered
-    const existingUser = await User.findOne({ where: { mobile_no } });
+    const existingUser = await User.findOne({
+      where: { mobile_no },
+      attributes: ['is_registered', 'is_mobile_verified'],
+    });
 
     if (existingUser && existingUser.is_registered && existingUser.is_mobile_verified) {
       res.status(200).json({ isRegistered: true, isVerified: true });
-    } else {
-      const otp = generateOTP();
-      const hashedOTP = await bcrypt.hash(otp, 10);
-      const expiryTime = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
-
-      // Create a new user or update the existing one with OTP
-      const [user] = await User.upsert({
-        mobile_no,
-        mobile_otp: hashedOTP,
-        otp_expiry: expiryTime,
-        is_mobile_verified: false,
-        is_registered: false,
-      }, {
-        returning: true, // Postgres-specific
-      });
-
-      // ... (implement OTP sending logic)
-
-      res.status(200).json({ isRegistered: false, isVerified: false, otp:otp });
+      return;
     }
+
+    // Generate a new OTP using a faster method
+    const otp = generateOTP();
+    const hashedOTP = await bcrypt.hash(otp, 10);
+
+    // Update the user or create a new one with OTP
+    const [user] = await User.upsert({
+      mobile_no,
+      mobile_otp: hashedOTP,
+      otp_expiry: new Date(Date.now() + 5 * 60 * 1000), // OTP expires in 5 minutes
+      is_mobile_verified: false,
+      is_registered: false,
+    }, { returning: true }); // Postgres-specific
+
+    // ... (implement OTP sending logic)
+
+    res.status(200).json({ isRegistered: false, isVerified: false, otp });
   } catch (error) {
     console.error('Error verifying mobile number:', error);
     res.status(500).json({ error: 'Internal server error' });
