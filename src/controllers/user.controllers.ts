@@ -406,35 +406,46 @@ export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Controller for saving additional fields for a verified mobile number
-export const signUpUser = async (req: Request, res: Response): Promise<void> => {
+export const signUpUser = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { mobile_no, email, pin, first_name, last_name } = req.body;
 
-    // Find the user by mobile number
-    const user = await User.findOne({ where: { mobile_no } });
+    // Find the user by mobile number and check if email already exists in parallel
+    const [user, existingUser] = await Promise.all([
+      User.findOne({ where: { mobile_no } }),
+      User.findOne({ where: { email }, attributes: ['id'] }),
+    ]);
 
-    if (user) {
-      const hashedPin = await bcrypt.hash(pin, 10);
-
-      if (user.is_mobile_verified) {
-        // Mobile number is already verified, update additional fields
-        user.email = email;
-        user.pin = hashedPin;
-        user.first_name = first_name;
-        user.last_name = last_name;
-        user.is_registered = true;
-        await user.save();
-
-        res.status(200).json({ message: 'Additional fields updated' });
-      } else {
-        res.status(400).json({ error: 'Mobile number not verified' });
-      }
-    } else {
+    if (!user) {
       // User not found
-      res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: 'User not found' });
     }
+
+    if (existingUser && existingUser.id !== user.id) {
+      return res.status(409).json({ error: 'Email already exists' });
+    }
+
+    if (!user.is_mobile_verified) {
+      // Mobile number not verified
+      return res.status(400).json({ error: 'Mobile number not verified' });
+    }
+
+    // Hash the pin
+    const hashedPin = await bcrypt.hash(pin, 10);
+
+    // Update additional fields
+    user.email = email;
+    user.pin = hashedPin;
+    user.first_name = first_name;
+    user.last_name = last_name;
+    user.is_registered = true;
+
+    // Save the user
+    await user.save();
+
+    return res.status(200).json({ message: 'Additional fields updated' });
   } catch (error) {
     console.error('Error saving additional fields:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
