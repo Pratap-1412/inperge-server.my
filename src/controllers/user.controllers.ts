@@ -326,6 +326,7 @@ export const checkUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// Controller to vrify pin for login
 export const verifyPIN = async (req: Request, res: Response): Promise<void> => {
   try {
     const { mobile_no, pin } = req.body;
@@ -337,7 +338,11 @@ export const verifyPIN = async (req: Request, res: Response): Promise<void> => {
 
       if (isPINValid) {
         // PIN is correct
-        res.status(200).json({ message: 'PIN is valid' });
+
+        // Generate a JWT token
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '7d' });
+
+        res.status(200).json({ message: 'PIN is valid', token });
       } else {
         // Password is incorrect
         res.status(401).json({ error: 'Invalid PIN' });
