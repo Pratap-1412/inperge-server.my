@@ -6,10 +6,12 @@ class User extends Model {
   public id!: number;
   public first_name!: string | null;
   public last_name!: string | null;
-  public email!: string;
+  public email!: string | null;
   public country_code!: number | null;
   public mobile_no!: number;
   public password!: string;
+  public pin!: string;
+  public is_registered!: boolean;
   public is_mobile_verified!: boolean;
   public is_email_verified!: boolean;
   public mobile_otp!: string | null; 
@@ -35,7 +37,7 @@ User.init(
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       unique: true,
     },
     country_code: {
@@ -51,6 +53,14 @@ User.init(
     password: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    pin: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },is_registered: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue:false
     },
     is_mobile_verified: {
       type: DataTypes.BOOLEAN,

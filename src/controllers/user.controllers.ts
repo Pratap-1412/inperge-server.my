@@ -45,8 +45,9 @@ export const userSignup = async (req: Request, res: Response): Promise<void> => 
       mobile_no,
     });
 
+
     // Generate JWT token
-    const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '24h' });
 
     // Send token along with user data in response
     res.status(201).json({
@@ -242,7 +243,7 @@ export const initiatePasswordSet = async (req: Request, res: Response): Promise<
       await sendEmail(user.first_name, email, email_otp)
         .catch(error => console.error('Error:', error));
 
-      res.status(200).json({ message: 'OTP sent successfully', mobile_otp: mobile_otp});// !!!!! Edit in production !!!!!!!
+      res.status(200).json({ message: 'OTP sent successfully', mobile_otp: mobile_otp });// !!!!! Edit in production !!!!!!!
     } else {
       res.status(404).json({ error: 'User not found' });
     }
@@ -282,6 +283,151 @@ export const setPassword = async (req: Request, res: Response): Promise<void> =>
     }
   } catch (error) {
     console.error('Error resetting password:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+// New code here
+
+// Controller for verifying mobile number
+export const checkUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { mobile_no } = req.body;
+
+    // Check if the mobile number is already registered
+    const existingUser = await User.findOne({ where: { mobile_no } });
+
+    if (existingUser && existingUser.is_registered && existingUser.is_mobile_verified) {
+      res.status(200).json({ isRegistered: true, isVerified: true });
+    } else {
+      const otp = generateOTP();
+      const hashedOTP = await bcrypt.hash(otp, 10);
+      const expiryTime = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
+
+      // Create a new user or update the existing one with OTP
+      const [user] = await User.upsert({
+        mobile_no,
+        mobile_otp: hashedOTP,
+        otp_expiry: expiryTime,
+        is_mobile_verified: false,
+        is_registered: false,
+      }, {
+        returning: true, // Postgres-specific
+      });
+
+      // ... (implement OTP sending logic)
+
+      res.status(200).json({ isRegistered: false, isVerified: false, otp:otp });
+    }
+  } catch (error) {
+    console.error('Error verifying mobile number:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const verifyPIN = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { mobile_no, pin } = req.body;
+    const user = await User.findOne({ where: { mobile_no } });
+
+    if (user) {
+      // Check if the PIN is correct
+      const isPINValid = await bcrypt.compare(pin, user.pin);
+
+      if (isPINValid) {
+        // PIN is correct
+        res.status(200).json({ message: 'PIN is valid' });
+      } else {
+        // Password is incorrect
+        res.status(401).json({ error: 'Invalid PIN' });
+      }
+    } else {
+      // User not found
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error verifying PIN:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Controller for verifying OTP
+export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { mobile_no, otp } = req.body;
+
+    // Find the user by mobile number
+    const user = await User.findOne({ where: { mobile_no } });
+
+    if (user) {
+      // Check if the OTP is expired
+      if (user.otp_expiry && user.otp_expiry < new Date()) {
+        res.status(400).json({ error: 'OTP expired' });
+        return;
+      }
+
+      // Check if the mobile_otp field is present
+      if (user.mobile_otp) {
+        // Compare the OTP with the stored value
+        const isOTPValid = await bcrypt.compare(otp, user.mobile_otp);
+
+        if (isOTPValid) {
+          // OTP is valid, mark the user's mobile number as verified
+          user.is_mobile_verified = true;
+          user.mobile_otp = null; // Clear the OTP field
+          user.otp_expiry = null; // Clear the OTP expiry
+          await user.save();
+
+          res.status(200).json({ message: 'OTP Verified Successfully', isRegistered: user.is_registered });
+        } else {
+          // OTP is incorrect
+          res.status(400).json({ error: 'Invalid OTP' });
+        }
+      } else {
+        // No OTP found for the user
+        res.status(400).json({ error: 'OTP not found' });
+      }
+    } else {
+      // User not found
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Controller for saving additional fields for a verified mobile number
+export const signUpUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { mobile_no, email, pin, first_name, last_name } = req.body;
+
+    // Find the user by mobile number
+    const user = await User.findOne({ where: { mobile_no } });
+
+    if (user) {
+      const hashedPin = await bcrypt.hash(pin, 10);
+
+      if (user.is_mobile_verified) {
+        // Mobile number is already verified, update additional fields
+        user.email = email;
+        user.pin = hashedPin;
+        user.first_name = first_name;
+        user.last_name = last_name;
+        user.is_registered = true;
+        await user.save();
+
+        res.status(200).json({ message: 'Additional fields updated' });
+      } else {
+        res.status(400).json({ error: 'Mobile number not verified' });
+      }
+    } else {
+      // User not found
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error saving additional fields:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
