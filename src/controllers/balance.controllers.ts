@@ -10,6 +10,7 @@ export const createBalance = async (req: Request, res: Response) => {
     const balance = await Balance.create({ user_id, current_balance });
     res.status(201).json(balance);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: 'Failed to create balance' });
   }
 };
