@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Op } from 'sequelize';
-import User from '../models/UserModel';
+import User from '../models/user.model';
 import { validationResult } from 'express-validator';
 import generateOTP from '../utils/generate-otp.helper';
 import { sendEmail } from '../services/sendEmailOtp'
@@ -47,7 +47,7 @@ export const userSignup = async (req: Request, res: Response): Promise<void> => 
 
 
     // Generate JWT token
-    const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '24h' });
+    const token = jwt.sign({ user_id: newUser.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '24h' });
 
     // Send token along with user data in response
     res.status(201).json({
@@ -115,7 +115,7 @@ export const userLogin = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1h' });
+    const token = jwt.sign({ user_id: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1h' });
 
     // Send token along with user data in response
     res.status(200).json({
@@ -138,11 +138,11 @@ export const userLogin = async (req: Request, res: Response): Promise<void> => {
 // Controller to update first name and lastname
 export const updateUserName = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.params.id;
+    const user_id = req.params.id;
     const { first_name, last_name } = req.body;
 
     // Find user by id
-    let user = await User.findByPk(userId);
+    let user = await User.findByPk(user_id);
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
@@ -177,10 +177,10 @@ export const findAllUsers = async (req: Request, res: Response): Promise<void> =
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
   try {
     // Extract user ID from request parameters
-    const userId: string = req.params.id;
+    const user_id: string = req.params.id;
 
     // Find user by ID in the database
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(user_id);
 
     if (user) {
       // User found, send success response
@@ -200,10 +200,10 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 export const deleteUserById = async (req: Request, res: Response): Promise<void> => {
   try {
     // Extract user ID from request parameters
-    const userId: string = req.params.id;
+    const user_id: string = req.params.id;
 
     // Find user by ID in the database
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(user_id);
 
     if (user) {
       // Delete the user
@@ -273,7 +273,7 @@ export const setPassword = async (req: Request, res: Response): Promise<void> =>
         user.is_email_verified = true;
         user.is_mobile_verified = true;
         await user.save();
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1h' });
+        const token = jwt.sign({ user_id: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1h' });
         res.status(200).json({ message: 'Password reset successful', token });
       } else {
         res.status(400).json({ error: 'Invalid OTP' });
@@ -342,7 +342,7 @@ export const verifyPIN = async (req: Request, res: Response): Promise<void> => {
         // PIN is correct
 
         // Generate a JWT token
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '7d' });
+        const token = jwt.sign({ user_id: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '7d' });
 
         res.status(200).json({ message: 'PIN is valid', token });
       } else {

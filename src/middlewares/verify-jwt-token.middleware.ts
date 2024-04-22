@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/UserModel';
+import User from '../models/user.model';
 
 // Define a custom interface extending the Express Request interface
 interface AuthenticatedRequest extends Request {
@@ -28,10 +28,10 @@ export const verifyToken = async (req: AuthenticatedRequest, res: Response, next
 
     try {
         // Verify the token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY || '') as { userId: string };
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY || '') as { user_id: string };
 
         // Check if user exists in the database
-        const user = await User.findByPk(decoded.userId);
+        const user = await User.findByPk(decoded.user_id);
 
         if (!user) {
             res.status(401).json({ error: 'User not found. Invalid token.' });

@@ -4,6 +4,7 @@ import sequelize from './config//database';
 import { authRouter, userRouter } from './routes/user.routes';
 import { handleBadJSONRequest } from './middlewares/bad-request.middleware';
 import cors from 'cors'; 
+import transactionRouter from './routes/transaction.routes';
 
 dotenv.config();
 
@@ -43,6 +44,9 @@ app.use('/api/auth', authRouter);
 
 // Use user routes
 app.use('/api/users', userRouter);
+
+// Use transaction routes
+app.use('/api/transaction', transactionRouter)
 
 // Use the bad request handling middleware
 app.use(handleBadJSONRequest)
