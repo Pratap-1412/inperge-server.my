@@ -344,7 +344,7 @@ export const verifyPIN = async (req: Request, res: Response): Promise<void> => {
         // Generate a JWT token
         const token = jwt.sign({ user_id: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '7d' });
 
-        res.status(200).json({ message: 'PIN is valid', token });
+        res.status(200).json({ message: 'PIN is valid', token:token, user_id:user.id });
       } else {
         // Password is incorrect
         res.status(401).json({ error: 'Invalid PIN' });

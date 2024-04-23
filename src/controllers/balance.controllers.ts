@@ -4,7 +4,7 @@ import Balance from '../models/balance.model';
 import User from '../models/user.model';
 
 // Create a new balance
-export const createBalance = async (req: Request, res: Response) => {
+export const addBalance = async (req: Request, res: Response) => {
   try {
     const { user_id, current_balance } = req.body;
     const balance = await Balance.create({ user_id, current_balance });
