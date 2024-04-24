@@ -21,14 +21,13 @@ export const getUserBalance = async (req: Request, res: Response) => {
     const { user_id } = req.params;
     const balance = await Balance.findOne({
       where: { user_id },
-      include: [{ model: User, as: 'user', attributes: ['id', 'email', 'firstName', 'lastName'] }],
     });
     if (!balance) {
       return res.status(404).json({ error: 'Balance not found' });
     }
     res.status(200).json(balance);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch balance' });
+    res.status(500).json({ error: 'Failed to fetch balance', err:error });
   }
 };
 

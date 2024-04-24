@@ -6,6 +6,7 @@ import User from '../models/user.model';
 import { validationResult } from 'express-validator';
 import generateOTP from '../utils/generate-otp.helper';
 import { sendEmail } from '../services/sendEmailOtp'
+import Balance from '../models/balance.model';
 
 // Controller for user signup
 export const userSignup = async (req: Request, res: Response): Promise<void> => {
@@ -442,7 +443,7 @@ export const signUpUser = async (req: Request, res: Response): Promise<Response>
 
     // Save the user
     await user.save();
-
+    await Balance.create({ user_id: user.id}); // Creating a default balance for user
     return res.status(200).json({ message: 'Additional fields updated' });
   } catch (error) {
     console.error('Error saving additional fields:', error);

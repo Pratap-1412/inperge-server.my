@@ -7,6 +7,7 @@ class Balance extends Model {
   public id!: number;
   public user_id!: number;
   public current_balance!: number;
+  public used_balance!: number;
   public updatedAt!: Date;
 
   // Foreign key association
@@ -32,6 +33,12 @@ Balance.init(
     current_balance: {
       type: DataTypes.DECIMAL,
       allowNull: false,
+      defaultValue:50000
+    },
+    used_balance: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+      defaultValue:0
     },
   },
   {

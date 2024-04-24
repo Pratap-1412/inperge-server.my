@@ -6,6 +6,7 @@ import { handleBadJSONRequest } from './middlewares/bad-request.middleware';
 import cors from 'cors'; 
 import transactionRouter from './routes/transaction.routes';
 import balanceRouter from './routes/balance.routes';
+import planRouter from './routes/plans.routes';
 
 dotenv.config();
 
@@ -51,6 +52,9 @@ app.use('/api/transaction', transactionRouter)
 
 // Use balance routes
 app.use('/api/balance',balanceRouter)
+
+// Use balance routes
+app.use('/api/plan',planRouter)
 
 // Use the bad request handling middleware
 app.use(handleBadJSONRequest)
