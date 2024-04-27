@@ -4,6 +4,8 @@ import sequelize from '../config/database';
 class Plans extends Model {
   public id!: number;
   public amount!: number;
+  public name!: string;
+  public price!: string;
   public no_of_trades!: number;
   public no_of_day_trade_history!: number;
   public equity_option_and_future!: boolean;
@@ -23,18 +25,31 @@ Plans.init(
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
+    },    
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue:"Basic",
+    },     
+    price: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue:0,
     },
     amount: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue:50000,
     },
     no_of_trades: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue:5
     },
     no_of_day_trade_history: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue:1
     },
     equity_option_and_future: {
       type: DataTypes.BOOLEAN,

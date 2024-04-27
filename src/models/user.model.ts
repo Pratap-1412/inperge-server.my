@@ -1,6 +1,7 @@
 // user.model.ts
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
+import Plans from './plans.model'
 
 class User extends Model {
   public id!: number;
@@ -11,6 +12,7 @@ class User extends Model {
   public mobile_no!: number;
   public password!: string;
   public pin!: string;
+  public plan_id!: bigint;
   public is_registered!: boolean;
   public is_mobile_verified!: boolean;
   public is_email_verified!: boolean;
@@ -57,7 +59,17 @@ User.init(
     pin: {
       type: DataTypes.STRING,
       allowNull: true,
-    },is_registered: {
+    },
+    plan_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: Plans,
+        key: 'id',
+      },
+      defaultValue:1
+    },    
+    is_registered: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue:false

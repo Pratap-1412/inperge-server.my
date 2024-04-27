@@ -163,6 +163,32 @@ export const updateUserName = async (req: Request, res: Response): Promise<void>
   }
 };
 
+// Controller to update first name and lastname
+export const updateUserPlan = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user_id = req.params.id;
+    const { plan_id } = req.body;
+
+    // Find user by id
+    let user = await User.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Update user fields
+    user.plan_id = plan_id ?? user.plan_id;
+
+    // Save updated user
+    user = await user.save();
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // Controller for finding all users
 export const findAllUsers = async (req: Request, res: Response): Promise<void> => {
   try {
