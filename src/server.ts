@@ -8,6 +8,7 @@ import transactionRouter from './routes/transaction.routes';
 import balanceRouter from './routes/balance.routes';
 import planRouter from './routes/plans.routes';
 import paymentRouter from './payments/payments.routes';
+import fundsTransactionRouter from './routes/funds.transactions.routes';
 
 dotenv.config();
 
@@ -59,6 +60,9 @@ app.use('/api/plan',planRouter)
 
 // Use Payment Routes
 app.use('/api/payments', paymentRouter);
+
+// Use Funds Transaction routes
+app.use('/api/funds-transaction',fundsTransactionRouter);
 
 // Use the bad request handling middleware
 app.use(handleBadJSONRequest)

@@ -1,6 +1,6 @@
 // controllers/balance.controller.ts
 import { Request, Response } from 'express';
-import Balance from '../models/balance.model';
+import Balance from '../models/funds.model';
 import User from '../models/user.model';
 
 // Create a new balance

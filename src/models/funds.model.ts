@@ -1,4 +1,4 @@
-// balance.model.ts
+// funds.model.ts
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
 import User from './user.model';

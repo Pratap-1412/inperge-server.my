@@ -6,7 +6,7 @@ import User from '../models/user.model';
 import { validationResult } from 'express-validator';
 import generateOTP from '../utils/generate-otp.helper';
 import { sendEmail } from '../services/sendEmailOtp'
-import Balance from '../models/balance.model';
+import Balance from '../models/funds.model';
 
 // Controller for user signup
 export const userSignup = async (req: Request, res: Response): Promise<void> => {
