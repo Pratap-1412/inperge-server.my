@@ -16,9 +16,9 @@ class User extends Model {
   public is_registered!: boolean;
   public is_mobile_verified!: boolean;
   public is_email_verified!: boolean;
-  public mobile_otp!: string | null; 
-  public email_otp!: string | null; 
-  public otp_expiry!: Date | null; 
+  public mobile_otp!: string | null;
+  public email_otp!: string | null;
+  public otp_expiry!: Date | null;
 }
 
 User.init(
@@ -45,7 +45,7 @@ User.init(
     country_code: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue:91
+      defaultValue: 91
     },
     mobile_no: {
       type: DataTypes.BIGINT,
@@ -67,22 +67,22 @@ User.init(
         model: Plans,
         key: 'id',
       },
-      defaultValue:1
-    },    
+      defaultValue: 1
+    },
     is_registered: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue:false
+      defaultValue: false
     },
     is_mobile_verified: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue:false
+      defaultValue: false
     },
     is_email_verified: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue:false
+      defaultValue: false
     },
     mobile_otp: {
       type: DataTypes.STRING, // Store Mobile OTP as string
@@ -102,6 +102,9 @@ User.init(
     modelName: 'User',
     tableName: 'users',
     timestamps: true,
+    defaultScope: {
+      attributes: { exclude: [ 'email_otp', 'otp_expiry', 'password'] }
+    }
   }
 );
 

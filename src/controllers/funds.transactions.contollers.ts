@@ -73,3 +73,25 @@ export const deleteFundsTransactionById = async (req: Request, res: Response) =>
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// Get all funds transactions by user_id
+export const getFundsTransactionsByUserId = async (req: Request, res: Response) => {
+  const user_id = req.params.user_id; 
+  try {
+    const fundsTransactions = await FundsTransaction.findAll({
+      where: { user_id }, // Filter by user_id
+      include: [
+        { model: User, as: 'user' }, // Include associated user
+        { model: Plan, as: 'plan' }  // Include associated plan
+      ]
+    });
+    if (!fundsTransactions || fundsTransactions.length === 0) {
+      return res.status(404).json({ error: 'No funds transactions found for this user' });
+    }
+    res.json(fundsTransactions);
+  } catch (error) {
+    console.error('Error getting funds transactions by user_id:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
