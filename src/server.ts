@@ -5,7 +5,7 @@ import { authRouter, userRouter } from './routes/user.routes';
 import { handleBadJSONRequest } from './middlewares/bad-request.middleware';
 import cors from 'cors'; 
 import transactionRouter from './routes/transaction.routes';
-import balanceRouter from './routes/balance.routes';
+import fundsRouter from './routes/funds.routes';
 import planRouter from './routes/plans.routes';
 import paymentRouter from './payments/payments.routes';
 import fundsTransactionRouter from './routes/funds.transactions.routes';
@@ -53,7 +53,7 @@ app.use('/api/users', userRouter);
 app.use('/api/transaction', transactionRouter)
 
 // Use balance routes
-app.use('/api/balance',balanceRouter)
+app.use('/api/balance',fundsRouter)
 
 // Use balance routes
 app.use('/api/plan',planRouter)
