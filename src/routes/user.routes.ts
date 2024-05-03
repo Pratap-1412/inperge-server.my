@@ -1,5 +1,5 @@
 import express from 'express';
-import { userSignup, findAllUsers, updateUserName, userLogin, getUserById, deleteUserById, initiatePasswordSet, setPassword, checkUser, verifyOTP, signUpUser, verifyPIN, updateUserPlan,  } from '../controllers/user.controllers';
+import {  findAllUsers, updateUserName, getUserById, deleteUserById, checkUser, verifyOTP, signUpUser, verifyPIN, updateUserPlan, initiateEmailVerification, verifyEmailOTP,  } from '../controllers/user.controllers';
 import { ValidateSignupFields } from '../errors/auth-validation.error';
 import { verifyToken } from '../middlewares/verify-jwt-token.middleware';
 import checkSecuritySignature from '../middlewares/signature-all-api.middleware';
@@ -21,6 +21,8 @@ userRouter.put('/:id', updateUserName);
 userRouter.put('/update-plan/:id', updateUserPlan);
 userRouter.get('/:id', getUserById);
 userRouter.delete('/:id', deleteUserById);
+userRouter.post('/send-email-otp/:user_id', initiateEmailVerification);
+userRouter.post('/verify-email-otp/:user_id', verifyEmailOTP);
 
 
 export { authRouter, userRouter };

@@ -19,6 +19,7 @@ class User extends Model {
   public mobile_otp!: string | null;
   public email_otp!: string | null;
   public otp_expiry!: Date | null;
+
 }
 
 User.init(
@@ -103,7 +104,7 @@ User.init(
     tableName: 'users',
     timestamps: true,
     defaultScope: {
-      attributes: { exclude: [ 'email_otp', 'otp_expiry', 'password'] }
+      attributes: { exclude: ['password'] }
     }
   }
 );
