@@ -7,6 +7,7 @@ import { validationResult } from 'express-validator';
 import generateOTP from '../utils/generate-otp.helper';
 import { sendEmail } from '../services/sendEmailOtp'
 import Balance from '../models/funds.model';
+import WatchList from '../models/watchlist.model';
 
 // Controller to update first name and lastname
 export const updateUserName = async (req: Request, res: Response): Promise<void> => {
@@ -274,8 +275,10 @@ export const signUpUser = async (req: Request, res: Response): Promise<Response>
 
     // Save the user
     await user.save();
+    await WatchList.create({user_id: user.id});
     await Balance.create({ user_id: user.id }); // Creating a default balance for user
-    return res.status(200).json({ message: 'Additional fields updated' });
+    const token = jwt.sign({ user_id: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '7d' });
+    return res.status(200).json({ token: token, message: 'Additional fields updated' });
   } catch (error) {
     console.error('Error saving additional fields:', error);
     return res.status(500).json({ error: 'Internal server error' });

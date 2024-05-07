@@ -9,6 +9,9 @@ import fundsRouter from './routes/funds.routes';
 import planRouter from './routes/plans.routes';
 import paymentRouter from './payments/payments.routes';
 import fundsTransactionRouter from './routes/funds.transactions.routes';
+import marketWatchRouter from './routes/marketwatch.routes';
+import watchlistRouter from './routes/watchlist.routes';
+import trueDataRouter from './helper/truedata.routes';
 
 dotenv.config();
 
@@ -63,6 +66,15 @@ app.use('/api/payments', paymentRouter);
 
 // Use Funds Transaction routes
 app.use('/api/funds-transaction',fundsTransactionRouter);
+
+// Use Marketwatch routes
+app.use('/api/marketwatch',marketWatchRouter);
+
+// Use Watchlist routes
+app.use('/api/watchlist',watchlistRouter);
+
+// Use Watchlist routes
+app.use('/api/truedata',trueDataRouter);
 
 // Use the bad request handling middleware
 app.use(handleBadJSONRequest)

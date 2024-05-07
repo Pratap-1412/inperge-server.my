@@ -10,7 +10,7 @@ import checkSecuritySignature from '../middlewares/signature-all-api.middleware'
 import { verifyToken } from '../middlewares/verify-jwt-token.middleware';
 
 const planRouter = express.Router();
-planRouter.use(checkSecuritySignature,verifyToken); // Middleware to verify email for all auth routes
+// planRouter.use(checkSecuritySignature,verifyToken); // Middleware to verify email for all auth routes
 
 
 // Create a new plan
