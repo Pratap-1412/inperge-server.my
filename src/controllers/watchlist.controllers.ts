@@ -4,12 +4,12 @@ import WatchList from '../models/watchlist.model';
 // Controller method for creating a new watchlist
 export async function createWatchlist(req: Request, res: Response): Promise<void> {
   try {
-    const { user_id, symbols } = req.body;
+    const { user_id, stocks } = req.body;
 
     // Create a new watchlist
     const watchlist = await WatchList.create({
       user_id,
-      symbols,
+      stocks,
     });
 
     res.status(201).json(watchlist);
@@ -23,7 +23,7 @@ export async function createWatchlist(req: Request, res: Response): Promise<void
 export async function updateWatchlist(req: Request, res: Response): Promise<void> {
     try {
       const { user_id } = req.params;
-      const { symbols } = req.body;
+      const { stocks } = req.body;
   
       const watchlist = await WatchList.findOne({ where: { user_id } });
       if (!watchlist) {
@@ -31,7 +31,7 @@ export async function updateWatchlist(req: Request, res: Response): Promise<void
         return;
       }
   
-      watchlist.symbols = symbols;
+      watchlist.stocks = stocks;
       await watchlist.save();
   
       res.status(200).json(watchlist);
@@ -44,7 +44,7 @@ export async function updateWatchlist(req: Request, res: Response): Promise<void
   export async function deleteFromWatchlist(req: Request, res: Response): Promise<void> {
     try {
       const { user_id } = req.params;
-      const { symbols } = req.body;
+      const { stocks } = req.body;
   
       const watchlist = await WatchList.findOne({ where: { user_id } });
       if (!watchlist) {
@@ -52,7 +52,7 @@ export async function updateWatchlist(req: Request, res: Response): Promise<void
         return;
       }
   
-      watchlist.symbols = watchlist.symbols.filter((value: string) => !symbols.includes(value));
+      watchlist.stocks = watchlist.stocks.filter((value: string) => !stocks.includes(value));
       await watchlist.save();
   
       res.status(200).json(watchlist);
@@ -65,7 +65,7 @@ export async function updateWatchlist(req: Request, res: Response): Promise<void
   export async function addSymbolToWatchlist(req: Request, res: Response): Promise<void> {
     try {
       const { user_id } = req.params;
-      const { symbols: symbolArray } = req.body;
+      const { stocks: symbolArray } = req.body;
 
       const watchlist = await WatchList.findOne({ where: { user_id } });
       if (!watchlist) {
@@ -73,20 +73,20 @@ export async function updateWatchlist(req: Request, res: Response): Promise<void
         return;
       }
 
-      const alreadyAddedSymbols = watchlist.symbols ? watchlist.symbols.filter((symbol: string) => symbolArray.includes(symbol)) : [];
-      if (alreadyAddedSymbols.length === symbolArray.length) {
-        res.status(200).json({ ...watchlist, message: `All symbols already added: ${alreadyAddedSymbols.join(', ')}` , allSymbolExists:true});
+      const alreadyAddedstocks = watchlist.stocks ? watchlist.stocks.filter((symbol: string) => symbolArray.includes(symbol)) : [];
+      if (alreadyAddedstocks.length === symbolArray.length) {
+        res.status(200).json({ ...watchlist, message: `All stocks already added: ${alreadyAddedstocks.join(', ')}` , allSymbolExists:true});
         return;
       }
 
-      const newSymbols = symbolArray.filter((symbol: string) => !alreadyAddedSymbols.includes(symbol));
+      const newstocks = symbolArray.filter((symbol: string) => !alreadyAddedstocks.includes(symbol));
 
-      watchlist.symbols = [...(watchlist.symbols || []), ...newSymbols];
+      watchlist.stocks = [...(watchlist.stocks || []), ...newstocks];
       await watchlist.save();
 
-      const msg = alreadyAddedSymbols.length > 0
-        ? `Symbol(s) already added: ${alreadyAddedSymbols.join(', ')}. Added: ${newSymbols.join(', ')}`
-        : `Added: ${newSymbols.join(', ')}`;
+      const msg = alreadyAddedstocks.length > 0
+        ? `Symbol(s) already added: ${alreadyAddedstocks.join(', ')}. Added: ${newstocks.join(', ')}`
+        : `Added: ${newstocks.join(', ')}`;
       res.status(200).json({ ...watchlist, message: msg });
     } catch (error) {
       console.error('Error adding symbol to watchlist:', error);
@@ -94,6 +94,23 @@ export async function updateWatchlist(req: Request, res: Response): Promise<void
     }
   }
   
+  export async function getstocksByUserId(req: Request, res: Response): Promise<void> {
+    try {
+      const { user_id } = req.params;
+
+      const watchlist = await WatchList.findOne({ where: { user_id } });
+      if (!watchlist) {
+        res.status(404).json({ error: 'Watchlist not found' });
+        return;
+      }
+
+      res.status(200).json({addedstocks:watchlist.stocks});
+    } catch (error) {
+      console.error('Error getting stocks by user id:', error);
+      res.status(500).json({ error: 'Error getting stocks by user id' });
+    }
+  }
+
 
 
   

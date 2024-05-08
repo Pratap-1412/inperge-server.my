@@ -4,8 +4,8 @@ import User from './user.model';
 
 class WatchList extends Model {
   public id!: number;
-  public userId!: number;
-  public symbols!: string[];
+  public user_id!: number;
+  public stocks!: string[];
   public readonly user?: User;
 }
 
@@ -25,14 +25,14 @@ WatchList.init(
       },
       unique:true
     },
-    symbols: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+    stocks: {
+      type: DataTypes.ARRAY(DataTypes.JSON),
     },
   },
   {
     sequelize,
     modelName: 'WatchList',
-    tableName: 'watchlist', // Your actual table name
+    tableName: 'watchlist',
   }
 );
 

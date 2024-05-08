@@ -6,8 +6,8 @@ import MarketWatch from '../models/marketwatch.model';
 // Create a new MarketWatch instance
 export const addMarketWatch = async (req: Request, res: Response) => {
     try {
-        const { symbols, company_name, instrument_type, isin_code, exchange, symbol, name, industry, series } = req.body;
-        const marketWatch = await MarketWatch.create({ symbols, company_name, instrument_type, isin_code, exchange, symbol, name, industry, series });
+        const { stocks, company_name, instrument_type, isin_code, exchange, symbol, name, industry, series } = req.body;
+        const marketWatch = await MarketWatch.create({ stocks, company_name, instrument_type, isin_code, exchange, symbol, name, industry, series });
         res.status(201).json(marketWatch);
     } catch (error: unknown) {
         if (error instanceof ValidationError) {

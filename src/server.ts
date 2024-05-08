@@ -1,6 +1,6 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
-import sequelize from './config//database';
+import sequelize from './config/database';
 import { authRouter, userRouter } from './routes/user.routes';
 import { handleBadJSONRequest } from './middlewares/bad-request.middleware';
 import cors from 'cors'; 
@@ -12,7 +12,6 @@ import fundsTransactionRouter from './routes/funds.transactions.routes';
 import marketWatchRouter from './routes/marketwatch.routes';
 import watchlistRouter from './routes/watchlist.routes';
 import trueDataRouter from './helper/truedata.routes';
-
 dotenv.config();
 
 const {
@@ -82,3 +81,4 @@ app.use(handleBadJSONRequest)
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+

@@ -3,7 +3,7 @@ import sequelize from '../config/database';
 
 class MarketWatch extends Model {
     public id!: number;
-    public symbols!: string;
+    public stocks!: string;
     public company_name!: string;
     public instrument_type!: string;
     public isin_code!: string;
@@ -23,7 +23,7 @@ MarketWatch.init(
             autoIncrement: true,
             primaryKey: true,
         },
-        symbols: {
+        stocks: {
             type: DataTypes.STRING,
             unique: true,
             allowNull: false,
