@@ -19,10 +19,10 @@ WatchList.init(
     user_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      references: {
-        model: 'User',
-        key: 'id',
-      },
+      // references: {
+      //   model: 'User',
+      //   key: 'id',
+      // },
       unique:true
     },
     stocks: {
