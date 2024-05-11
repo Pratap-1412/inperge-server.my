@@ -25,10 +25,10 @@ Balance.init(
     user_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      // references: {
-      //   model: User,
-      //   key: 'id',
-      // },
+      references: {
+        model: User,
+        key: 'id',
+      },
     },
     current_balance: {
       type: DataTypes.DECIMAL,

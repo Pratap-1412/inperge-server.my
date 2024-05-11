@@ -4,7 +4,7 @@ const { rtConnect, rtDisconnect, rtSubscribe, rtUnsubscribe, rtFeed, historical,
 const user = 'FYERS2018'
 const pwd = 'Ngj1VZmn'
 
-const symbols = ['TCS'];
+const symbols = ['CRUDEOIL'];
 
 rtConnect(user, pwd, symbols, 8082);
 
